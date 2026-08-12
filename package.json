@@ -1,0 +1,18 @@
+{
+  "name": "learn-cc-huangyong-ts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "手搓 TypeScript 版 learn-claude-code — 通过重写内化 Claude Code harness 的原理",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.116.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^7.0.2"
+  }
+}

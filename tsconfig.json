@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    // ── 第 2 层：这份配置只做类型检查，不产出任何 JS ──
+    "noEmit": true,
+
+    // ── 让 tsc 按 Node 的规则理解模块（type:module / node: 前缀 / exports 字段）──
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "esnext",
+    "lib": ["esnext"],
+
+    // ── 三条铁律的编译期护栏，对应 Node 类型剥离的三个限制 ──
+    // 写 enum/namespace/参数属性/装饰器时当场报错，而不是运行时才崩
+    "erasableSyntaxOnly": true,
+    // 强制类型导入必须写 import type，否则运行时会去找不存在的导出
+    "verbatimModuleSyntax": true,
+    // 允许 import "./foo.ts" —— 剥离器不改写路径，必须写全后缀
+    "allowImportingTsExtensions": true,
+
+    // ── 严格模式，别关 ──
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+
+    // 只加载 @types/node，避免自动吞掉 node_modules/@types 下所有包
+    "types": ["node"],
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}

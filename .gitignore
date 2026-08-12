@@ -1,0 +1,10 @@
+node_modules/
+.env
+.DS_Store
+*.log
+
+# 各章运行时可能产生的落盘产物（任务、记忆、调度、团队邮箱）
+.agent/
+tasks/
+memory/
+.cron/
