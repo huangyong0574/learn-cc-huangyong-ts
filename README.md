@@ -10,7 +10,7 @@
 ## 运行
 
 ```sh
-cp .env.example .env        # 填 ANTHROPIC_API_KEY 和 MODEL_ID
+cp .env.example .env        # 只需填 DEEPSEEK_API_KEY
 npm install
 
 node src/s01_agent_loop/code.ts    # 跑某一章
@@ -19,6 +19,19 @@ npm test                            # node --test tests/
 ```
 
 **没有 build 步骤。** Node 25 原生剥离类型注解，源码就是可执行的。
+
+## Provider：只用 DeepSeek
+
+端点写死在 `src/shared/client.ts`（`https://api.deepseek.com/anthropic`），各章不再关心 provider，`.env` 里唯一必填的就是 `DEEPSEEK_API_KEY`。
+
+**`@anthropic-ai/sdk` 保留，走的是 DeepSeek 的 Anthropic 兼容端点。** 它在这里是「协议客户端」不是「厂商 SDK」——这 17 章要内化的正是 Anthropic Messages 协议的形状：`messages[]` 里 `tool_use` / `tool_result` 成对出现、`stop_reason` 驱动循环、`system` 是独立字段。换成 DeepSeek 的 OpenAI 兼容接口（`tool_calls` + `role:"tool"`、`finish_reason`）整个 harness 的骨架就变了，学的就不是 Claude Code 了。
+
+两个被显式挡掉的坑，都是 shell 注入引起的（Claude Code 自己会注入这些变量）：
+
+| 变量 | 不挡会怎样 | 怎么挡的 |
+|---|---|---|
+| `ANTHROPIC_BASE_URL` | SDK 默认读它 → DeepSeek 的 key 被打到 `api.anthropic.com` → 401 | `baseURL` 写死常量传进构造器 |
+| `ANTHROPIC_AUTH_TOKEN` | SDK 默认读它并额外发 `Authorization: Bearer` → DeepSeek 认这个头 → 401 | 显式传 `authToken: null` |
 
 ## 三条铁律
 
