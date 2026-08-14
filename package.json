@@ -6,13 +6,16 @@
   "description": "手搓 TypeScript 版 learn-claude-code — 通过重写内化 Claude Code harness 的原理",
   "scripts": {
     "check": "tsc --noEmit",
-    "test": "node --test"
+    "test": "node --test",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\""
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
+    "prettier": "^3.9.6",
     "typescript": "^7.0.2"
   }
 }

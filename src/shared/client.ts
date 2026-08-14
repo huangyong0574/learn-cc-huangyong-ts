@@ -18,19 +18,19 @@ import Anthropic from "@anthropic-ai/sdk";
 // 再交给 Node 解析（键名自己扫，值的解析仍复用 Node，省得手写引号/转义）。
 const envPath = fileURLToPath(new URL("../../.env", import.meta.url));
 if (existsSync(envPath)) {
-  for (const line of readFileSync(envPath, "utf8").split("\n")) {
-    const key = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(line)?.[1];
-    if (key) delete process.env[key];
-  }
-  process.loadEnvFile(envPath);
+    for (const line of readFileSync(envPath, "utf8").split("\n")) {
+        const key = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(line)?.[1];
+        if (key) delete process.env[key];
+    }
+    process.loadEnvFile(envPath);
 }
 
 function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`缺少环境变量 ${name} —— 复制 .env.example 到 .env 并填好`);
-  }
-  return value;
+    const value = process.env[name];
+    if (!value) {
+        throw new Error(`缺少环境变量 ${name} —— 复制 .env.example 到 .env 并填好`);
+    }
+    return value;
 }
 
 // DeepSeek 的 Anthropic 兼容端点。
@@ -52,10 +52,10 @@ const BASE_URL = "https://api.deepseek.com/anthropic";
 export const MODEL = process.env.MODEL_ID || "deepseek-v4-flash";
 
 export const client = new Anthropic({
-  apiKey: requireEnv("DEEPSEEK_API_KEY"),
-  baseURL: BASE_URL,
-  // authToken 不显式置 null 的话，SDK 会去读 shell 里的 ANTHROPIC_AUTH_TOKEN
-  // （Claude Code 会注入），额外发一个 Authorization: Bearer 头。DeepSeek 认这个头，
-  // 于是拿着 Anthropic 的 token 打过去，必 401。
-  authToken: null,
+    apiKey: requireEnv("DEEPSEEK_API_KEY"),
+    baseURL: BASE_URL,
+    // authToken 不显式置 null 的话，SDK 会去读 shell 里的 ANTHROPIC_AUTH_TOKEN
+    // （Claude Code 会注入），额外发一个 Authorization: Bearer 头。DeepSeek 认这个头，
+    // 于是拿着 Anthropic 的 token 打过去，必 401。
+    authToken: null,
 });

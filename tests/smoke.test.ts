@@ -5,14 +5,14 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 test("Node 能直接执行带类型注解的 .ts", () => {
-  const tools: { name: string; input: Record<string, unknown> }[] = [
-    { name: "bash", input: { command: "ls" } },
-  ];
-  assert.equal(tools[0]?.name, "bash");
+    const tools: { name: string; input: Record<string, unknown> }[] = [
+        { name: "bash", input: { command: "ls" } },
+    ];
+    assert.equal(tools[0]?.name, "bash");
 });
 
 test("能 import 带 .ts 后缀的相对路径", async () => {
-  // 动态 import，避免没配 .env 时整个测试文件加载失败
-  const mod = await import("../src/shared/client.ts").catch((err: unknown) => err);
-  assert.ok(mod, "shared/client.ts 应该能被解析到（缺 .env 时抛错也算解析成功）");
+    // 动态 import，避免没配 .env 时整个测试文件加载失败
+    const mod = await import("../src/shared/client.ts").catch((err: unknown) => err);
+    assert.ok(mod, "shared/client.ts 应该能被解析到（缺 .env 时抛错也算解析成功）");
 });
