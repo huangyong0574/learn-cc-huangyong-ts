@@ -8,3 +8,4 @@ node_modules/
 tasks/
 memory/
 .cron/
+tmp/
