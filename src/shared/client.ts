@@ -16,13 +16,32 @@ import Anthropic from "@anthropic-ai/sdk";
 // 会往 shell 里注入自己的一套变量。不处理的话，.env 里配的值会被静默忽略。
 // 对齐 Python 原版的 load_dotenv(override=True)：先删掉 .env 声明过的同名变量，
 // 再交给 Node 解析（键名自己扫，值的解析仍复用 Node，省得手写引号/转义）。
+//
+// 运行时兼容：process.loadEnvFile 是 Node 20.12+/Bun 1.4+ 才有的 API，
+// 老版 Bun 没有 → 降级为手写解析（去掉行内注释与外层引号，够用即可）。
 const envPath = fileURLToPath(new URL("../../.env", import.meta.url));
 if (existsSync(envPath)) {
-    for (const line of readFileSync(envPath, "utf8").split("\n")) {
+    const envLines = readFileSync(envPath, "utf8").split("\n");
+    for (const line of envLines) {
         const key = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(line)?.[1];
         if (key) delete process.env[key];
     }
-    process.loadEnvFile(envPath);
+    if (typeof process.loadEnvFile === "function") {
+        process.loadEnvFile(envPath);
+    } else {
+        for (const line of envLines) {
+            const m = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(line);
+            const key = m?.[1];
+            const raw = m?.[2];
+            if (key == null || raw == null) continue;
+            let value = raw.trim();
+            // 去掉成对的外层引号
+            if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+                value = value.slice(1, -1);
+            }
+            process.env[key] = value;
+        }
+    }
 }
 
 function requireEnv(name: string): string {

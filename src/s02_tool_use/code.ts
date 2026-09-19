@@ -7,7 +7,7 @@ import { client, MODEL } from "../shared/client.ts";
 import { execSync } from "node:child_process";
 import readline from "node:readline/promises";
 import { existsSync, globSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
-import path from "node:path"
+import path from "node:path";
 
 const SYSTEM = `You are a coding agent at ${process.cwd()}. Use tools to solve tasks. Act, don't explain.`;
 
@@ -84,8 +84,13 @@ const TOOL_HANDLERS: Record<string, ToolHandler> = {
     bash: (input) => runBash((input.command as string) ?? ""),
     read_file: (input) => runRead((input.path as string) ?? ""),
     write_file: (input) => runWrite((input.path as string) ?? "", (input.content as string) ?? ""),
-    edit_file: (input) => runEdit((input.path as string) ?? "", (input.old_text as string) ?? "", (input.new_text as string) ?? ""),
-    glob: (input) => runGlob((input.pattern as string) ?? "")
+    edit_file: (input) =>
+        runEdit(
+            (input.path as string) ?? "",
+            (input.old_text as string) ?? "",
+            (input.new_text as string) ?? "",
+        ),
+    glob: (input) => runGlob((input.pattern as string) ?? ""),
 };
 
 while (true) {
@@ -128,7 +133,9 @@ async function agentLoop(messages: Anthropic.MessageParam[]) {
             if (block.type === "tool_use") {
                 console.log(`\x1b[33m$ ${block.name}\x1b[0m`);
                 const handler = TOOL_HANDLERS[block.name];
-                const output = handler ? handler(block.input as Record<string,unknown>):`unknown:${block.name}`
+                const output = handler
+                    ? handler(block.input as Record<string, unknown>)
+                    : `unknown:${block.name}`;
                 console.log(output.slice(0, 200));
                 result.push({ type: "tool_result", tool_use_id: block.id, content: output });
             }
@@ -182,7 +189,6 @@ function safePath(p: string): string {
     return real;
 }
 
-
 function runBash(command: string) {
     try {
         const dangerous = ["rm -rf /", "sudo", "shutdown", "reboot", "> /dev/"];
@@ -213,8 +219,9 @@ function runRead(path: string, limit?: number) {
         if (limit !== undefined && limit < lines.length) {
             const remain = lines.length - limit;
             lines.length = limit;
-            lines.push(`...(${remain} more lines)`)
-        } return lines.join("\n");
+            lines.push(`...(${remain} more lines)`);
+        }
+        return lines.join("\n");
     } catch (e) {
         return `Error: ${(e as Error).message}`;
     }
@@ -225,7 +232,7 @@ function runWrite(p: string, content: string) {
         const filePath = safePath(p);
         mkdirSync(path.dirname(filePath), { recursive: true });
         writeFileSync(filePath, content);
-        return `Wrote ${content.length} bytes to ${p}`
+        return `Wrote ${content.length} bytes to ${p}`;
     } catch (e) {
         return `Error: ${(e as Error).message}`;
     }
@@ -238,13 +245,12 @@ function runEdit(path: string, oldText: string, newText: string) {
         if (!file_content.includes(oldText)) {
             return `Error: text not found in ${filePath}`;
         }
-        writeFileSync(filePath, file_content.replace(oldText, newText))
+        writeFileSync(filePath, file_content.replace(oldText, newText));
         return `Edited ${filePath}`;
     } catch (e) {
         return (e as Error).message;
     }
 }
-
 
 function runGlob(pattern: string) {
     try {
@@ -255,8 +261,7 @@ function runGlob(pattern: string) {
             return !rel.startsWith("..") && !path.isAbsolute(rel);
         });
         return result.join("\n") || "(no matches)";
-
     } catch (e) {
-        return `${(e as Error).message}`
+        return `${(e as Error).message}`;
     }
 }
